@@ -1,15 +1,15 @@
 const url = "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json";
 let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-let colors = ["#0b326b", "#f5bd42", "#f05129", "#e3337e", "#b7cc94", "#7bcbc0", "#966eac", "#b09977", "#827775", "#f1c7dd"];
+let colors = ["#3288bd", "#66c2a5", "#abdda4", "#e6f598", "#ffffbf", "#fee08b", "#fdae61", "#f46d43", "#d53e4f", "#9e0142"]
 
-//svg 
+//mapSvg 
 const mapHeight = 500;
 const mapWidth = 900;
-const margin = 30;
-const height = mapHeight + margin * 4;
-const width = mapWidth + margin * 4;
+const mapMargin = 30;
+const height = mapHeight + mapMargin;
+const width = mapWidth + mapMargin * 4;
 
-const svg = d3.select("svg")
+const mapSvg = d3.select("svg")
   .attr("height", height)
   .attr("width", width);
 
@@ -20,6 +20,8 @@ req.send();
 req.onload = function() {
   const JSONdata = JSON.parse(req.responseText);
   let dataset = JSONdata.monthlyVariance;
+
+  //dataset.map()
   
   //scales
   let xScale = d3.scaleLinear()
@@ -27,10 +29,10 @@ req.onload = function() {
       d3.min(dataset, (d) => d.year - 1 ),
       d3.max(dataset, (d) => d.year + 1)
     ])
-    .range([margin * 3,  mapWidth + margin * 3])
+    .range([mapMargin * 3,  mapWidth + mapMargin * 3])
   let yScale = d3.scaleBand()
     .domain(months)
-    .range([margin, mapHeight]);
+    .range([mapMargin, mapHeight]);
 
   let colorScale = d3.scaleQuantize()
     .domain([
@@ -48,17 +50,17 @@ req.onload = function() {
     .tickSizeInner(10)
     .tickSizeOuter(0);
 
-  svg.append("g")
+  mapSvg.append("g")
     .attr("id", "x-axis")
     .attr("transform", `translate(0, ${mapHeight + 3})`)
     .call(xAxis);
-  svg.append("g")
+  mapSvg.append("g")
     .attr("id", "y-axis")
-    .attr("transform", `translate(${margin * 3}, 0)`)
+    .attr("transform", `translate(${mapMargin * 3}, 0)`)
     .call(yAxis);
     
   //cells
-  svg.selectAll("rect")
+  mapSvg.selectAll("rect")
   .data(dataset)
   .enter()
   .append("rect")
@@ -72,35 +74,65 @@ req.onload = function() {
   .attr("y", (d) => yScale(months[d.month - 1]))
   .attr("fill", (d) => colorScale(d.variance));
 
-  svg.append("rect")
+  mapSvg.append("rect")
   .attr("class", "border")
   .attr("width", mapWidth)
   .attr("height", mapHeight - 26)
   .attr("x", 90)
-  .attr("y", margin)
+  .attr("y", mapMargin)
   .style("fill", "none")
   .style("stroke", "#000")
   .style("stroke-width", 1);
 
   //tooltip
-}
-//legend
-const legendWidth = 400;
-const legendHeight = 60;
-const legendRectHeight = legendHeight / 2;
-const legendRectWidth = legendWidth / 2;
-const legend = svg.append("rect")
-  .attr("id", "legend")
-  .attr("width", legendWidth)
-  .attr("height", legendHeight)
-  .attr("x", margin * 3)
-  .attr("y", mapHeight + margin)
-  .attr("fill", "#fff");
-for (let i = 0; i < colors.length; i++) {
-  legend.append("rect")
-  .attr("width", legendRectWidth)
-  .attr("height", legendRectHeight)
-  .attr("x", 0)
-  .attr("y", 0);
-  console.log("test")
-}
+  
+  //legend
+  const legendWidth = 400;
+  const legendHeight = 60;
+  const legendMargin = 30;
+  const legendSvgWidth = legendWidth + legendMargin * 2;
+  const legendSvgHeight = legendHeight + legendMargin;
+  const legendRectHeight = legendHeight / 2;
+  const legendRectWidth = legendWidth / 10;
+  
+  const legendSvg = d3.select("#legend")
+  .attr("height", legendSvgHeight)
+  .attr("width", legendSvgWidth);
+  
+  
+    legendSvg.selectAll("rect")
+    .data(colors)
+    .enter()
+    .append("rect")
+    .attr("width", legendRectWidth)
+    .attr("height", legendRectHeight)
+    .attr("x", (d, i) => i * legendRectWidth + legendMargin)
+    .attr("y", legendMargin)
+    .attr("fill", (d) => d);
+
+    let colorScaleArray = [];
+    function makeColorScaleArray(dataArray) {
+      let minNum = d3.min(dataArray, (d) => d.variance) + JSONdata.baseTemperature;
+      let maxNum = d3.max(dataArray, (d) => d.variance) + JSONdata.baseTemperature;
+      minNum = parseFloat(minNum.toFixed(1));
+      maxNum = parseFloat(maxNum.toFixed(1));
+      let arrayNumber = minNum;
+      let rangeNum = parseFloat((maxNum - minNum).toFixed(1));
+      let fractionNum = parseFloat((rangeNum / 10).toFixed(1));
+      while (arrayNumber <= maxNum) {
+        colorScaleArray.push(arrayNumber);
+        arrayNumber = parseFloat((arrayNumber + fractionNum).toFixed(1));
+      }
+      colorScaleArray.push(maxNum);
+      console.log(colorScaleArray);
+    } 
+    makeColorScaleArray(dataset);
+
+    legendSvg.selectAll("text")
+      .data(colorScaleArray)
+      .enter()
+      .append("text")
+      .attr("x", (d, i) => (i * legendRectWidth + legendMargin) - 10)
+      .attr("y", 75)
+      .text((d) => d)
+  }
