@@ -72,8 +72,21 @@ req.onload = function() {
   .attr("width", mapWidth / 262)
   .attr("x", (d) => xScale(d.year))
   .attr("y", (d) => yScale(months[d.month - 1]))
-  .attr("fill", (d) => colorScale(d.variance));
+  .attr("fill", (d) => colorScale(d.variance))
+  //tooltip
+  .on("mouseover", (d, i) => {
+    d3.select("#tooltip")
+      .style("visibility", "visible")
+      .style("left", (event.pageX + 5) + "px")
+      .style("top", (event.pageY - 30) + "px");
+      insertTooltipText(d.month, d.year, d.variance);
+  })
+  .on("mouseout", (d, i) => {
+    d3.select("#tooltip")
+      .style("visibility", "hidden");
+  });
 
+  //map border
   mapSvg.append("rect")
   .attr("class", "border")
   .attr("width", mapWidth)
@@ -83,8 +96,6 @@ req.onload = function() {
   .style("fill", "none")
   .style("stroke", "#000")
   .style("stroke-width", 1);
-
-  //tooltip
   
   //legend
   const legendWidth = 400;
@@ -98,8 +109,7 @@ req.onload = function() {
   const legendSvg = d3.select("#legend")
   .attr("height", legendSvgHeight)
   .attr("width", legendSvgWidth);
-  
-  
+
     legendSvg.selectAll("rect")
     .data(colors)
     .enter()
@@ -124,7 +134,6 @@ req.onload = function() {
         arrayNumber = parseFloat((arrayNumber + fractionNum).toFixed(1));
       }
       colorScaleArray.push(maxNum);
-      console.log(colorScaleArray);
     } 
     makeColorScaleArray(dataset);
 
@@ -134,5 +143,16 @@ req.onload = function() {
       .append("text")
       .attr("x", (d, i) => (i * legendRectWidth + legendMargin) - 10)
       .attr("y", 75)
-      .text((d) => d)
+      .text((d) => (d));
+
+    legendSvg
+      .append("text")
+      .attr("x", 200)
+      .attr("y", 20)
+      .text("(In Celcius)");
+
+    function insertTooltipText(month, year, temp) {
+      d3.select("#tooltip")
+        .html(`${months[month - 1]}, </br> ${year} </br> ${(temp + JSONdata.baseTemperature).toFixed(1)} C°`);
+    };
   }

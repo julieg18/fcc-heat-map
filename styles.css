@@ -6,3 +6,11 @@ body {
   stroke-width: 1;
   stroke: #000;
 }
+
+#legend {
+  font-size: small;
+}
+
+#tooltip {
+  position: absolute;
+}
