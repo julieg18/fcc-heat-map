@@ -1,6 +1,6 @@
 const url = "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json";
 let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-let colors = ["#3288bd", "#66c2a5", "#abdda4", "#e6f598", "#ffffbf", "#fee08b", "#fdae61", "#f46d43", "#d53e4f", "#9e0142"]
+let colors = ["#264cff", "#3fa0ff", "#72d8ff", "#aaf7ff", "#e0ffff", "#ffffbf", "#ffe099", "#ffad72", "#f76d5e", "#d82632"]
 
 //mapSvg 
 const mapHeight = 500;
@@ -78,7 +78,9 @@ req.onload = function() {
     d3.select("#tooltip")
       .style("visibility", "visible")
       .style("left", (event.pageX + 5) + "px")
-      .style("top", (event.pageY - 30) + "px");
+      .style("top", (event.pageY - 30) + "px")
+      .style("background-color", colorScale(d.variance))
+      .attr("data-year", d.year);
       insertTooltipText(d.month, d.year, d.variance);
   })
   .on("mouseout", (d, i) => {
@@ -153,6 +155,6 @@ req.onload = function() {
 
     function insertTooltipText(month, year, temp) {
       d3.select("#tooltip")
-        .html(`${months[month - 1]}, </br> ${year} </br> ${(temp + JSONdata.baseTemperature).toFixed(1)} C°`);
+        .html(`${months[month - 1]}, ${year} </br> ${(temp + JSONdata.baseTemperature).toFixed(1)} C°`);
     };
   }

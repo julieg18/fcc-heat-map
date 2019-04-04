@@ -1,6 +1,12 @@
 body {
   text-align: center;
+  font-family: 'PT Sans', sans-serif;
 }
+
+small {
+  font-size: initial;
+}
+
 
 .cell:hover {
   stroke-width: 1;
@@ -9,8 +15,15 @@ body {
 
 #legend {
   font-size: small;
+  font-family: sans-serif;
 }
 
 #tooltip {
   position: absolute;
+  color: #000;
+  height: 40px;
+  width: 150px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #000;
 }

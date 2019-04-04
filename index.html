@@ -2,16 +2,21 @@
 <html>
   <head>
     <title>FCC Heat Map</title>
+    <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">
     <link href="styles.css" rel="stylesheet"/>
   </head>
   
   <body>
       <header>
-        <h1 id="title">Heat Map</h1>
-        <p id="description"></p>
+        <h1 id="title">
+        Heat Map
+        <small>By <a target="_blank" href="https://github.com/julieg18">Julie Galvan</a></small>
+        </h1>
+        <p id="description">This heat map shows you the monthly global land-surface temperature.</p>
       </header>
       <main>
         <svg id="mapSvg"></svg>
+      </br>
         <svg id="legend"></svg>
         <div id="tooltip"></div>
       </main>
