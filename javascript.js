@@ -20,8 +20,6 @@ req.send();
 req.onload = function() {
   const JSONdata = JSON.parse(req.responseText);
   let dataset = JSONdata.monthlyVariance;
-
-  //dataset.map()
   
   //scales
   let xScale = d3.scaleLinear()
