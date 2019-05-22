@@ -39,7 +39,7 @@ req.onload = function () {
     ])
     .range(colors)
 
-    // axis
+  // axis
   let xAxis = d3.axisBottom(xScale)
     .tickFormat(d3.format("d"))
     .tickSizeInner(10)
@@ -79,7 +79,7 @@ req.onload = function () {
       .style("top", (event.pageY - 30) + "px")
       .style("background-color", colorScale(d.variance))
       .attr("data-year", d.year)
-      insertTooltipText(d.month, d.year, d.variance)
+      .html(`${months[d.month - 1]}, ${d.year} </br> ${(d.variance + JSONdata.baseTemperature).toFixed(1)} C°`)
   })
   .on("mouseout", (d, i) => {
     d3.select("#tooltip")
@@ -110,49 +110,39 @@ req.onload = function () {
   .attr("height", legendSvgHeight)
   .attr("width", legendSvgWidth)
 
-    legendSvg.selectAll("rect")
-    .data(colors)
-    .enter()
-    .append("rect")
-    .attr("width", legendRectWidth)
-    .attr("height", legendRectHeight)
-    .attr("x", (d, i) => i * legendRectWidth + legendMargin)
-    .attr("y", legendMargin)
-    .attr("fill", (d) => d)
+  legendSvg.selectAll("rect")
+  .data(colors)
+  .enter()
+  .append("rect")
+  .attr("width", legendRectWidth)
+  .attr("height", legendRectHeight)
+  .attr("x", (d, i) => i * legendRectWidth + legendMargin)
+  .attr("y", legendMargin)
+  .attr("fill", (d) => d)
 
-    let colorScaleArray = []
-    function makeColorScaleArray(dataArray) {
-      let minNum = d3.min(dataArray, (d) => d.variance) + JSONdata.baseTemperature
-      let maxNum = d3.max(dataArray, (d) => d.variance) + JSONdata.baseTemperature
-      minNum = parseFloat(minNum.toFixed(1))
-      maxNum = parseFloat(maxNum.toFixed(1))
-      let arrayNumber = minNum
-      let rangeNum = parseFloat((maxNum - minNum).toFixed(1))
-      let fractionNum = parseFloat((rangeNum / 10).toFixed(1))
-      while (arrayNumber <= maxNum) {
-        colorScaleArray.push(arrayNumber)
-        arrayNumber = parseFloat((arrayNumber + fractionNum).toFixed(1))
-      }
-      colorScaleArray.push(maxNum)
-    } 
-    makeColorScaleArray(dataset)
-
-    legendSvg.selectAll("text")
-      .data(colorScaleArray)
-      .enter()
-      .append("text")
-      .attr("x", (d, i) => (i * legendRectWidth + legendMargin) - 10)
-      .attr("y", 75)
-      .text((d) => (d))
-
-    legendSvg
-      .append("text")
-      .attr("x", 200)
-      .attr("y", 20)
-      .text("(In Celcius)")
-
-    function insertTooltipText (month, year, temp) {
-      d3.select("#tooltip")
-        .html(`${months[month - 1]}, ${year} </br> ${(temp + JSONdata.baseTemperature).toFixed(1)} C°`)
+  function getColorScaleArray () {
+    let arr = []
+    let firstArrNum = (d3.min(dataset, (d) => d.variance) +JSONdata.baseTemperature).toFixed(1) - ''
+    let lastArrNum = (d3.max(dataset, (d) => d.variance) +JSONdata.baseTemperature).toFixed(1) - ''
+    let fractionNum = (((lastArrNum - firstArrNum).toFixed(1) - '') /10).toFixed(1) - ''
+    for (let i = 0; i < 11; i++) {
+      arr.push((firstArrNum + fractionNum * i).toFixed(1))
     }
+    return arr
+  }
+  let colorScaleArray = getColorScaleArray()
+
+  legendSvg.selectAll("text")
+    .data(colorScaleArray)
+    .enter()
+    .append("text")
+    .attr("x", (d, i) => (i * legendRectWidth + legendMargin) - 10)
+    .attr("y", 75)
+    .text((d) => (d))
+
+  legendSvg
+    .append("text")
+    .attr("x", 200)
+    .attr("y", 20)
+    .text("(In Celcius)")
   }
